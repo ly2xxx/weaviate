@@ -1,2 +1,1 @@
-# weaviate
-weaviate experiment
+https://weaviate.io/developers/weaviate/search/image
