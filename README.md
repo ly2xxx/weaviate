@@ -23,7 +23,7 @@ docker compose -f "docker-compose.yml" up -d --build
 ```
 
 ```bash
-python 05-upload_images.py
+python 05-upload_images_v4.py
 ```
 
 ```bash

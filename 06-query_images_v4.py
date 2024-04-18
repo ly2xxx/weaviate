@@ -8,15 +8,16 @@ model = SentenceTransformer('clip-ViT-B-32')
 #V4
 client = weaviate.connect_to_local()
 
-Image.open("resources/eiffel-tower-day.jpg").show(title="Query for...")
+query_picture = "resources/eiffel-tower-night.jpg"
+Image.open(query_picture).show(title="Query for...")
 
-embedding=model.encode(Image.open("resources/eiffel-tower-day.jpg"))
+embedding=model.encode(Image.open(query_picture))
 
 # Convert the numpy.ndarray to a list
 embedding_list = embedding.tolist()
 
 # Get the collection
-images = client.collections.get("MyImages")
+images = client.collections.get("MyImagesV4")
 
 response = images.query.near_vector(
     near_vector=embedding_list,
