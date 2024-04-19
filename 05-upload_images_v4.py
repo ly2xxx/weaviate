@@ -23,20 +23,27 @@ client.collections.create(
 images = ['cat.jpg', 'eiffel-tower-day.jpg', 'two_dogs_in_snow.jpg'] 
 
 images_collection = client.collections.get(COLLECTION_NAME)
-
-for imgurl in images:
-    img_path = f"resources/{imgurl}"
-    img_emb = model.encode(Image.open(img_path))
-    print(img_emb)
-
-    uuid = images_collection.data.insert(
-        properties={
+#batch insert
+with images_collection.batch.dynamic() as batch:
+    batch.batch_size=10
+    for imgurl in images:
+        img_path = f"resources/{imgurl}"
+        img_emb = model.encode(Image.open(img_path))
+        print(img_emb)
+        batch.add_object(properties={
             "name": imgurl,
             "path": img_path,
         },
-        vector=img_emb.tolist()
-    )
+        vector=img_emb.tolist())
+    #single insert
+    # uuid = images_collection.data.insert(
+    #     properties={
+    #         "name": imgurl,
+    #         "path": img_path,
+    #     },
+    #     vector=img_emb.tolist()
+    # )
 
-    print(uuid)    
+    # print(uuid)    
 
 client.close()
