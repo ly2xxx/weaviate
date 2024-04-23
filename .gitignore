@@ -130,6 +130,9 @@ venv.bak/
 # mkdocs documentation
 /site
 
+# foundation models
+/models
+
 # mypy
 .mypy_cache/
 .dmypy.json
