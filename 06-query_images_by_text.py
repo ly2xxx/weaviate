@@ -11,7 +11,7 @@ model = SentenceTransformer('./models/clip-ViT-B-32/')
 client = weaviate.connect_to_local()
 
 # Encode text prompt with CLIP
-embedding= model.encode("Girl eating ice cream") 
+embedding= model.encode("Golf course") 
 
 # import clip
 
@@ -26,10 +26,11 @@ embedding_list = embedding.tolist()
 # Get the collection
 images = client.collections.get("MyImagesLocal")
 
+number_of_results = 5
 response = images.query.near_vector(
     near_vector=embedding_list,
     return_properties=["name", "path"],
-    limit=3
+    limit=number_of_results
 )
 
 def display_picture(picture_obj):
@@ -37,8 +38,7 @@ def display_picture(picture_obj):
     path_value = picture_obj.properties["path"]
     Image.open(path_value).show(title="Response")
 
-display_picture(response.objects[0])
-display_picture(response.objects[1])
-display_picture(response.objects[2])
+for i in range(number_of_results):
+    display_picture(response.objects[i])
 
 client.close()
