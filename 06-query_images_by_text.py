@@ -3,13 +3,15 @@ from PIL import Image
 
 import weaviate
 
-model = SentenceTransformer('clip-ViT-B-32')
+#run locally hosted model
+model = SentenceTransformer('./models/clip-ViT-B-32/')
+#replace with model = SentenceTransformer('clip-ViT-B-32') to run inference from huggingface
 
 #V4
 client = weaviate.connect_to_local()
 
 # Encode text prompt with CLIP
-embedding= model.encode("Cat on a desk") 
+embedding= model.encode("Girl eating ice cream") 
 
 # import clip
 
@@ -22,17 +24,21 @@ embedding= model.encode("Cat on a desk")
 embedding_list = embedding.tolist()
 
 # Get the collection
-images = client.collections.get("MyImagesV4")
+images = client.collections.get("MyImagesLocal")
 
 response = images.query.near_vector(
     near_vector=embedding_list,
     return_properties=["name", "path"],
-    limit=1
+    limit=3
 )
 
-first_obj = response.objects[0]
-print(first_obj)
-path_value = first_obj.properties["path"]
-Image.open(path_value).show(title="Response")
+def display_picture(picture_obj):
+    print(picture_obj)
+    path_value = picture_obj.properties["path"]
+    Image.open(path_value).show(title="Response")
+
+display_picture(response.objects[0])
+display_picture(response.objects[1])
+display_picture(response.objects[2])
 
 client.close()
