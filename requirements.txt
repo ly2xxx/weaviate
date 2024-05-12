@@ -3,3 +3,4 @@ sentence-transformers==2.2.2
 Pillow==9.3.0
 streamlit
 tk==0.1.0
+datasets==2.19.1
