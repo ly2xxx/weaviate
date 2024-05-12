@@ -11,7 +11,7 @@ model = SentenceTransformer('./models/clip-ViT-B-32/')
 client = weaviate.connect_to_local()
 
 # Encode text prompt with CLIP
-embedding= model.encode("Golf course") 
+embedding= model.encode("Happy Holi") 
 
 # import clip
 
