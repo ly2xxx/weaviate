@@ -11,41 +11,40 @@ from tqdm import tqdm
 import torch
 import numpy as np
 
-# model = SentenceTransformer('openai/clip-vit-base-patch32')
 device = "cpu" #"cuda" if torch.cuda.is_available() else "cpu"
 model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
 preprocess = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-
-def encode_images(images: Union[List[str], List[PIL.Image.Image]], batch_size: int):
-    def transform_fn(el):
-        if isinstance(el['image'], PIL.Image.Image):
-            imgs = el['image']
-        else:
-            imgs = [Image().decode_example(_) for _ in el['image']]
-        return preprocess(images=imgs, return_tensors='pt')
-        
-    dataset = Dataset.from_dict({'image': images})
-    dataset = dataset.cast_column('image',Image(decode=False)) if isinstance(images[0], str) else dataset       
-    dataset.set_format('torch')
-    dataset.set_transform(transform_fn)
-    dataloader = DataLoader(dataset, batch_size=batch_size)
-    image_embeddings = []
-    pbar = tqdm(total=len(images) // batch_size, position=0)
-    with torch.no_grad():
-        for batch in dataloader:
-            batch = {k:v.to(device) for k,v in batch.items()}
-            image_embeddings.extend(model.get_image_features(**batch).detach().cpu().numpy())
-            pbar.update(1)
-        pbar.close()
-    return np.stack(image_embeddings)
 
 def encode_image(image_path: str, model, preprocess):
     image = Image.open(image_path)
     inputs = preprocess(images=[image], return_tensors="pt")
     with torch.no_grad():
         outputs = model.get_image_features(**inputs)
-    image_embedding = outputs.detach().cpu().numpy()
+    image_embedding = outputs.detach().cpu().numpy().squeeze()
     return image_embedding
+
+# def encode_images(images: Union[List[str], List[PIL.Image.Image]], batch_size: int):
+#     def transform_fn(el):
+#         if isinstance(el['image'], PIL.Image.Image):
+#             imgs = el['image']
+#         else:
+#             imgs = [Image().decode_example(_) for _ in el['image']]
+#         return preprocess(images=imgs, return_tensors='pt')
+        
+#     dataset = Dataset.from_dict({'image': images})
+#     dataset = dataset.cast_column('image',Image(decode=False)) if isinstance(images[0], str) else dataset       
+#     dataset.set_format('torch')
+#     dataset.set_transform(transform_fn)
+#     dataloader = DataLoader(dataset, batch_size=batch_size)
+#     image_embeddings = []
+#     pbar = tqdm(total=len(images) // batch_size, position=0)
+#     with torch.no_grad():
+#         for batch in dataloader:
+#             batch = {k:v.to(device) for k,v in batch.items()}
+#             image_embeddings.extend(model.get_image_features(**batch).detach().cpu().numpy())
+#             pbar.update(1)
+#         pbar.close()
+#     return np.stack(image_embeddings)
 
 #V4
 client = weaviate.connect_to_local()
